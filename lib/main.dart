@@ -1,4 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
+import 'question.dart';
+import 'quiz_brain.dart';
+
+QuizBrain quizBrain = QuizBrain();
+List<Widget> initialScoreKeeper = [
+  SizedBox(
+    height: 24,
+  )
+];
 
 void main() => runApp(Quizzler());
 
@@ -25,6 +35,8 @@ class QuizPage extends StatefulWidget {
 }
 
 class _QuizPageState extends State<QuizPage> {
+  List<Widget> scoreKeeper = List.from(initialScoreKeeper);
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -37,7 +49,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                'This is where the question text will go.',
+                quizBrain.getQuestionText(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 25.0,
@@ -62,6 +74,10 @@ class _QuizPageState extends State<QuizPage> {
               ),
               onPressed: () {
                 //The user picked true.
+//                setState(() {
+                  checkAnswer(true);
+                  checkReset();
+//                });
               },
             ),
           ),
@@ -80,13 +96,64 @@ class _QuizPageState extends State<QuizPage> {
               ),
               onPressed: () {
                 //The user picked false.
+//                setState(() {
+                  checkAnswer(false);
+                  checkReset();
+//                });
               },
             ),
           ),
         ),
         //TODO: Add a Row here as your score keeper
+        Row(children: scoreKeeper)
       ],
     );
+  }
+
+  void checkAnswer(bool userSelectedAnswer) {
+//    setState(() {
+      if (quizBrain.getQuestionAnswer() == userSelectedAnswer) {
+        addCorrect();
+      } else {
+        addWrong();
+      }
+//    });
+  }
+
+  void checkReset() {
+    if (!quizBrain.nextQuestion()) {
+      Alert(
+        context: context,
+        title: 'Finished!',
+        desc: 'You\'ve reached the end of the quiz.',
+      ).show();
+      resetQuiz();
+    }
+  }
+
+  void addCorrect() {
+    setState(() {
+      scoreKeeper.add(Icon(
+        Icons.check,
+        color: Colors.green,
+      ));
+    });
+  }
+
+  void addWrong() {
+    setState(() {
+      scoreKeeper.add(Icon(
+        Icons.clear,
+        color: Colors.red,
+      ));
+    });
+  }
+
+  void resetQuiz() {
+//    setState(() {
+      scoreKeeper = List.from(initialScoreKeeper);
+      quizBrain.resetQuiz();
+//    });
   }
 }
 
